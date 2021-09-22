@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manitos Moviles</title>
+    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@4.5.2/dist/materia/bootstrap.min.css" integrity="sha384-B4morbeopVCSpzeC1c4nyV0d0cqvlSAfyXVfrPJa25im5p+yEN/YmhlgQP/OyMZD" crossorigin="anonymous"> -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w==" crossorigin="anonymous" />
+    <link rel="stylesheet" href="lib/vue-multiselect.min.css">
+    <link rel="stylesheet" href="lib/vue-datetime.min.css">
+    <link rel="stylesheet" href="./css/index.css">
+    
+</head>
+<body>
+    <div id="app">
+      <div id="marco-captura">
+        <div class="parte-superior container mt-5">
+            <table class="table table-bordered">
+               <tr>
+                   <td rowspan="5" colspan="2" width="33%">
+                       <img src="img/honda_motosistema.png" class="" alt="" srcset="">
+                   </td>
+                   <td width="31%" colspan="2" style="background-color: #e7e6e6;"> <strong>ORDEN DE SERVICIO</strong> </td>
+                   <td></td>
+                   <td width="18.5%"></td>
+               </tr>
+               <tr>
+                   <td></td>
+                   <td></td>
+                   <td>Fecha de Emisión</td>
+                   <td> <datetime style="width: 100%;" v-model="orden_servicio.fecha_emision"  type="date" format="dd-MM-yyyy" zone="America/Lima" value-zone="America/Lima"></datetime> </td>
+               </tr>
+               <tr>
+                   <td colspan="2" style="background-color: #e7e6e6;"> <strong>CONDICIONES DE PAGO</strong> </td>
+                   <td>Fecha/Hora de Entrega Ofrecida</td>
+                   <td> <datetime style="width: 100%;" v-model="orden_servicio.hora_entrega"  type="datetime" format="dd-MM-yyyy HH:mm" zone="America/Lima" value-zone="America/Lima"></datetime> </td>
+               </tr>
+               <tr>
+                   <td width="18%"> 
+                       <div class="d-flex justify-content-between">
+                           <label class="form-check-label" for="exampleRadios1">Contado</label>
+                           <input class="form-check-input" v-model="orden_servicio.condiciones_pago" type="radio" name="exampleRadios" id="exampleRadios1" value="Contado">
+                       </div>
+                   </td>
+                   <td>
+                       <div class="d-flex justify-content-between">
+                           <label class="form-check-label" for="exampleRadios1">Crédito</label>
+                           <input class="form-check-input" v-model="orden_servicio.condiciones_pago" type="radio" name="exampleRadios" id="exampleRadios1" value="Crédito">
+                       </div>
+                   </td>
+                   <td></td>
+                   <td> </td>
+               </tr>
+               <tr>
+                    <td>
+                       <div class="d-flex justify-content-between">
+                           <label class="form-check-label" for="exampleRadios1">HDP</label>
+                           <input class="form-check-input" v-model="orden_servicio.condiciones_pago" type="radio" name="exampleRadios" id="exampleRadios1" value="HDP">
+                       </div>
+                    </td>
+                    <td></td>
+                    <td></td>
+                    <td>  </td>
+                </tr>
+            </table>
+            <!-- *******************************OTRA TABLA*********************** -->
+           <table class="table table-bordered">  
+                    <tr class="color-cabeceras"> 
+                       <th width="33%" colspan="2" class="text-center">DATOS DEL CLIENTE</th>
+                       <th width="33%" colspan="2" class="text-center">TIPO DE SERVICIO</th>
+                       <th width="33%" colspan="2" class="text-center">DATOS DEL VEHICULO</th>
+                   </tr>
+                   <tr>
+                       <td>Razón Social:</td>
+                       <!-- <td> <input type="text" v-model="orden_servicio.datos_cliente.razon_social" class="borde-focus border-0"> </td> -->
+                       <td> {{orden_servicio.datos_cliente.razon_social}} </td>
+                       <td></td>
+                       <td></td>
+                       <td>Modelo:</td>
+                       <td> <input type="text" v-model="orden_servicio.datos_vehiculo.modelo" class="borde-focus border-0"> </td>
+                   </tr>
+                   
+                   <tr>
+                       <td>Ruc:</td>
+                       <!-- <td> <input type="text" v-model="orden_servicio.datos_cliente.ruc" class="borde-focus border-0"> </td> -->
+                       <td> {{orden_servicio.datos_cliente.ruc}}  </td>
+                       <td>Mantenimiento Regular</td>
+                       <td>
+                           <input class="form-check-input" v-model="orden_servicio.tipo_servicio" type="radio" name="tipo_servicio" id="exampleRadios1" value="Mantenimiento">
+                       </td>
+                       <td>N° de motor:</td>
+                       <td> <input type="text" v-model="orden_servicio.datos_vehiculo.n_motor" class="borde-focus border-0"> </td>
+                   </tr>
+                   <tr>
+                       <td>Dirección:</td>
+                       <!-- <td> <input type="text" v-model="orden_servicio.datos_cliente.direccion" class="borde-focus border-0"> </td> -->
+                       <td> {{orden_servicio.datos_cliente.direccion}} </td>
+                       <td></td>
+                       <td></td>
+                       <td>N° de chasis:</td>
+                       <td> <input type="text" v-model="orden_servicio.datos_vehiculo.n_chasis" class="borde-focus border-0"> </td>
+                   </tr>
+                   <tr>
+                       <td>Distrito:</td>
+                       <!-- <td> <input type="text" v-model="orden_servicio.datos_cliente.distrito" class="borde-focus border-0"> </td> -->
+                       <td> {{orden_servicio.datos_cliente.distrito}}  </td>
+                       <td>R/G Nº </td>
+                       <td> <input class="form-check-input" v-model="orden_servicio.tipo_servicio" type="radio" name="tipo_servicio" id="exampleRadios1" value="R/G Nº"> </td>
+                       <td>Año de Fabricación:</td>
+                       <td> <datetime style="width: 100%;" v-model="orden_servicio.datos_vehiculo.anio_fabricacion" class="border-0"  type="date" format="dd-MM-yyyy" zone="America/Lima" value-zone="America/Lima"></datetime> </td>
+                   </tr>
+                   <tr>
+                       <td>Usuario:</td>
+                       <!-- <td> <input type="text" v-model="meta.currentUser.fullName" class="borde-focus border-0"> </td> -->
+                       <td> {{orden_servicio.datos_cliente.usuario}} </td>
+                       <td></td>
+                       <td></td>
+                       <td>Color:</td>
+                       <td> <input type="text" v-model="orden_servicio.datos_vehiculo.color" class="borde-focus border-0"> </td>
+                   </tr>
+                   <tr>
+                       <td>DNI:</td>
+                       <!-- <td> <input type="text" v-model="orden_servicio.datos_cliente.dni" class="borde-focus border-0"> </td> -->
+                       <td> {{orden_servicio.datos_cliente.dni}} </td>
+                       <td>Reparación</td>
+                       <td> <input class="form-check-input" v-model="orden_servicio.tipo_servicio" type="radio" name="tipo_servicio" id="exampleRadios1" value="Reparación"> </td>
+                       <td>Placa:</td>
+                       <td> <input type="text" v-model="orden_servicio.datos_vehiculo.placa" class="borde-focus border-0"> </td>
+                   </tr>
+                   <tr>
+                       <td>Correo:</td>
+                       <!-- <td> <input type="text" v-model="orden_servicio.datos_cliente.correo"  class="borde-focus border-0"> </td> -->
+                       <td> {{orden_servicio.datos_cliente.correo}} </td>
+                       <td></td>
+                       <td></td>
+                       <td>Kilometraje:</td>
+                       <td> <input type="text" v-model="orden_servicio.datos_vehiculo.kilometraje" class="borde-focus border-0"> </td>
+                   </tr>
+                   <tr>
+                       <td>Teléfono:</td>
+                       <!-- <td> <input type="text" v-model="orden_servicio.datos_cliente.telefono" class="borde-focus border-0"> </td> -->
+                       <td> {{orden_servicio.datos_cliente.telefono}} </td>
+                       <td></td>
+                       <td></td>
+                       <td></td>
+                       <td></td>
+                   </tr>
+                   <tr>
+                       <td>Celular:</td>
+                       <!-- <td> <input type="text" v-model="orden_servicio.datos_cliente.celular" class="borde-focus border-0"> </td> -->
+                       <td> {{orden_servicio.datos_cliente.celular}} </td>
+                       <td></td>
+                       <td></td>
+                       <td></td>
+                       <td></td>
+                   </tr>
+                   <!-- ******************OTRA TABLA************************* -->
+                   <tr class="color-cabeceras">
+                       <th colspan="6" class="text-center">TRABAJOS ESPECIFICOS A REALIZAR</th>
+                   </tr>
+                   <tr>
+                       <td colspan="2">
+                           <div class="d-flex justify-content-between">
+                               <input type="checkbox" data-value="Mantenimiento"  v-on:change="addAndRemove"  v-model="orden_servicio.trabajos_especificos.mantenimiento" class="form-check-input">
+                               <label class="form-check-label">Mantenimiento</label>
+                           </div>
+                           
+                       </td>
+                       <td colspan="2">
+                           <div class="d-flex justify-content-between">
+                               <input type="checkbox" data-value="Batería" v-on:change="addAndRemove" v-model="orden_servicio.trabajos_especificos.bateria" class="form-check-input">
+                               <label class="form-check-label">Batería</label>
+                           </div>
+                       </td>
+                       <td>M.O. Revisión</td>
+                       <td> <input type="number" v-model="orden_servicio.trabajos_especificos.mo_revision" v-on:change="changeSubTotalMO" step=".01" class="borde-focus border-0">  </td>
+                   </tr>
+                   <tr>
+                       <td colspan="2">
+                           <div class="d-flex justify-content-between">
+                               <input type="checkbox" data-value="Cambio de Aceite" v-on:change="addAndRemove" v-model="orden_servicio.trabajos_especificos.cambio_aceite" class="form-check-input">
+                               <label class="form-check-label">Cambio de aceite</label>
+                           </div>                       
+                       </td>
+                       <td colspan="2">
+                           <div class="d-flex justify-content-between">
+                               <input type="checkbox" data-value="Revisión Sistema Eléctrico" v-on:change="addAndRemove" v-model="orden_servicio.trabajos_especificos.rev_sis_electrico" class="form-check-input">
+                               <label class="form-check-label">Rev. Sist. Eléctrico</label>
+                           </div>
+                       </td>
+                       <td>M.O. Mecánica:</td>
+                       <td> <input type="number" v-model="orden_servicio.trabajos_especificos.mo_mecanica" v-on:change="changeSubTotalMO" step=".01" class="borde-focus border-0">  </td>
+                   </tr>
+                   <tr>
+                       <td colspan="2">
+                           <div class="d-flex justify-content-between">
+                               <input type="checkbox" data-value="Reparación de Motor" v-on:change="addAndRemove" v-model="orden_servicio.trabajos_especificos.preparacion_motor" class="form-check-input">
+                               <label class="form-check-label">Reparación del motor</label>
+                           </div>
+                       </td>
+                       <td colspan="2">
+                           <div class="d-flex justify-content-between">
+                               <input type="checkbox" data-value="Revisión Sistema Encendido" v-on:change="addAndRemove" v-model="orden_servicio.trabajos_especificos.rev_sis_encendido" class="form-check-input">
+                               <label class="form-check-label">Rev. Sist. Encendido</label>
+                           </div>
+                       </td>
+                       <td>Servicios a terceros:</td>
+                       <td> <input type="number" v-model="orden_servicio.trabajos_especificos.servicios_terceros"  v-on:change="changeSubTotalMO" step=".01" class="borde-focus border-0">  </td>
+                   </tr>
+                   <tr>
+                       <td colspan="2">
+                           <div class="d-flex justify-content-between">
+                               <input type="checkbox" data-value="Descarbonizado" v-on:change="addAndRemove" v-model="orden_servicio.trabajos_especificos.descarbonizado" class="form-check-input">
+                               <label class="form-check-label">Descarbonizado</label>
+                           </div>
+                       </td>
+                       <td colspan="2">
+                           <div class="d-flex justify-content-between">
+                               <input type="checkbox" data-value="Suspensión" v-on:change="addAndRemove" v-model="orden_servicio.trabajos_especificos.suspencion" class="form-check-input">
+                               <label class="form-check-label">Suspención</label>
+                           </div>
+                       </td>
+                       <td>Otros:</td>
+                       <td> <input type="number" v-model="orden_servicio.trabajos_especificos.otros_servicios" v-on:change="changeSubTotalMO" step=".01" class="borde-focus border-0">  </td>
+                   </tr>
+                   <tr>
+                       <td colspan="2">
+                           <div class="d-flex justify-content-between">
+                               <input type="checkbox" data-value="Embrague" v-on:change="addAndRemove" v-model="orden_servicio.trabajos_especificos.embrague" class="form-check-input">
+                               <label class="form-check-label">Embrague</label>
+                           </div>
+                       </td>
+                       <td colspan="2">
+                           <div class="d-flex justify-content-between">
+                               <input type="checkbox" data-value="Aro - Neumático" v-on:change="addAndRemove" v-model="orden_servicio.trabajos_especificos.aro_neumatico" class="form-check-input">
+                               <label class="form-check-label">Aro - Neumático</label>
+                           </div>
+                       </td>
+                       <td style="background-color: #e7e6e6;"> <strong>SUB TOTAL M.O.</strong> </td>
+                       <td style="background-color: #e7e6e6;"> {{orden_servicio.trabajos_especificos.subtotal_mo}}  </td>
+                   </tr>
+                   <tr>
+                       <td colspan="2">
+                           <div class="d-flex justify-content-between">
+                               <input type="checkbox" data-value="Transmisión" v-on:change="addAndRemove" v-model="orden_servicio.trabajos_especificos.transmision"  class="form-check-input">
+                               <label class="form-check-label">Transmisión</label>
+                           </div>
+                       </td>
+                       <td colspan="2">
+                           <div class="d-flex justify-content-between">
+                               <input type="checkbox" data-value="Sist.Escape" v-on:change="addAndRemove" v-model="orden_servicio.trabajos_especificos.sis_escape" class="form-check-input">
+                               <label class="form-check-label">Sist. Escape</label>
+                           </div>
+                       </td>
+                       <td>Repuestos:</td>
+                       <td> <input type="number" v-model="orden_servicio.trabajos_especificos.repuestos" v-on:change="changeSubTotalRepuestos" step=".01" class="borde-focus border-0">  </td>
+                   </tr>
+                   <tr>
+                       <td colspan="2">
+                           <div class="d-flex justify-content-between">
+                               <input type="checkbox" data-value="Sistema de Arrastre" v-on:change="addAndRemove" v-model="orden_servicio.trabajos_especificos.sistema_arrastre" class="form-check-input">
+                               <label class="form-check-label">Sistema de arrastre</label>
+                           </div>
+                       </td>
+                       <td colspan="2">
+                           <div class="d-flex justify-content-between">
+                               <input type="checkbox" data-value="Sist.Dirección" v-on:change="addAndRemove" v-model="orden_servicio.trabajos_especificos.sis_direccion" class="form-check-input">
+                               <label class="form-check-label">Sist. Dirección</label>
+                           </div>
+                       </td>
+                       <td>Accesorios:</td>
+                       <td> <input type="number" v-model="orden_servicio.trabajos_especificos.accesorios" v-on:change="changeSubTotalRepuestos" step=".01" class="borde-focus border-0">  </td>
+                   </tr>
+                   <tr>
+                       <td colspan="2">
+                           <div class="d-flex justify-content-between">
+                               <input type="checkbox" data-value="Frenos" v-on:change="addAndRemove" v-model="orden_servicio.trabajos_especificos.frenos" class="form-check-input">
+                               <label class="form-check-label">Frenos</label>
+                           </div>
+                       </td>
+                       <td colspan="2">
+                           <div class="d-flex justify-content-between">
+                               <input type="checkbox" data-value="Otros" v-on:change="addAndRemove" v-model="orden_servicio.trabajos_especificos.otros" class="form-check-input">
+                               <label class="form-check-label">Otros</label>
+                           </div>
+                       </td>
+                       <td>Lubricantes:</td>
+                       <td> <input type="number" v-model="orden_servicio.trabajos_especificos.lubricantes" v-on:change="changeSubTotalRepuestos" step=".01" class="borde-focus border-0">  </td>
+                   </tr>
+                   <tr>
+                       <td colspan="2"></td>
+                       <td colspan="2"></td>
+                       <td>Otros:</td>
+                       <td> <input type="number" v-model="orden_servicio.trabajos_especificos.otros_subtotal" v-on:change="changeSubTotalRepuestos" step=".01" class="borde-focus border-0">  </td>
+                   </tr>
+                   <tr>
+                       <td colspan="2"></td>
+                       <td colspan="2"></td>
+                       <td style="background-color: #e7e6e6;"> <strong>SUB TOTAL REPUESTOS:</strong> </td>
+                       <td style="background-color: #e7e6e6;"> {{orden_servicio.trabajos_especificos.subtotal_repuestos}} </td>
+                   </tr>
+                   <tr>
+                       <td colspan="2"></td>
+                       <td colspan="2"></td>
+                       <td style="background-color: #e7e6e6;"> <strong>TOTAL:</strong> </td>
+                       <td style="background-color: #e7e6e6;"> {{orden_servicio.trabajos_especificos.total_final}}  </td>
+                   </tr>
+           </table>
+           <br>
+           <hr>
+           <br>
+           <!-- <table class="table">
+               <thead>
+                   <tr>
+                       <th>IMAGEN</th>
+                       <th>REQUERIMIENTO DEL CLIENTE 
+                       INVENTARIO DEL VEHICULO</th>
+                   </tr>
+               </thead>
+               <tbody>
+                   <tr>
+                       <table class="table table-bordered">
+                           <tr>
+                               <td><input type="checkbox" class="form-check-input"></td>
+                               <td><label class="form-check-label">Llave de Contacto</label></td>
+                               <td><input type="checkbox" class="form-check-input"></td>
+                               <td><label class="form-check-label">Espejo LH-RH</label></td>
+                               <td><input type="checkbox" class="form-check-input"></td>
+                               <td><label class="form-check-label">Telescópicas</label></td>
+                               <td><input type="checkbox" class="form-check-input"></td>
+                               <td><label class="form-check-label">Parrilla</label></td>
+                               <td><input type="checkbox" class="form-check-input"></td>
+                               <td><label class="form-check-label">Maleta Delívery</label></td>
+                               <td><input type="checkbox" class="form-check-input"></td>
+                               <td><label class="form-check-label">Cable Embrague</label></td>
+                           </tr>
+                           <tr>
+                               <td><input type="checkbox" class="form-check-input"></td>
+                               <td><label class="form-check-label">Tarjeta de Propiedad</label></td>
+                               <td><input type="checkbox" class="form-check-input"></td>
+                               <td><label class="form-check-label">Tapiz de Asiento</label></td>
+                               <td><input type="checkbox" class="form-check-input"></td>
+                               <td><label class="form-check-label">Cobertores</label></td>
+                               <td><input type="checkbox" class="form-check-input"></td>
+                               <td><label class="form-check-label">Velocímetro</label></td>
+                               <td><input type="checkbox" class="form-check-input"></td>
+                               <td><label class="form-check-label">Seguro - Cadena</label></td>
+                               <td><input type="checkbox" class="form-check-input"></td>
+                               <td><label class="form-check-label">Cable Velocímetro</label></td>
+                           </tr>
+                           <tr>
+                               <td><input type="checkbox" class="form-check-input"></td>
+                               <td><label class="form-check-label">Libro de Servicio</label></td>
+                               <td><input type="checkbox" class="form-check-input"></td>
+                               <td><label class="form-check-label">Porta Herramientas</label></td>
+                               <td><input type="checkbox" class="form-check-input"></td>
+                               <td><label class="form-check-label">Tapas Laterales LH-RH</label></td>
+                               <td><input type="checkbox" class="form-check-input"></td>
+                               <td><label class="form-check-label">Tacómetro</label></td>
+                               <td><input type="checkbox" class="form-check-input"></td>
+                               <td><label class="form-check-label">Cable Freno Delantero</label></td>
+                               <td><input type="checkbox" class="form-check-input"></td>
+                               <td><label class="form-check-label">Varilla de Aceite</label></td>
+                           </tr>
+                           <tr>
+                               <td><input type="checkbox" class="form-check-input"></td>
+                               <td><label class="form-check-label">Parador central</label></td>
+                               <td><input type="checkbox" class="form-check-input"></td>
+                               <td><label class="form-check-label">Cubre Cadena</label></td>
+                               <td><input type="checkbox" class="form-check-input"></td>
+                               <td><label class="form-check-label">Pedal de Arranque</label></td>
+                               <td><input type="checkbox" class="form-check-input"></td>
+                               <td><label class="form-check-label">Jebes de Estribo LH-RH</label></td>
+                               <td><input type="checkbox" class="form-check-input"></td>
+                               <td><label class="form-check-label">Tapa de Gasolina</label></td>
+                               <td><input type="checkbox" class="form-check-input"></td>
+                               <td><label class="form-check-label">Tapa Deposito Freno</label></td>
+                           </tr>
+                           <tr>
+                               <td><input type="checkbox" class="form-check-input"></td>
+                               <td><label class="form-check-label">Guardafango Delantero</label></td>
+                               <td><input type="checkbox" class="form-check-input"></td>
+                               <td><label class="form-check-label">Cubre Cadena</label></td>
+                               <td><input type="checkbox" class="form-check-input"></td>
+                               <td><label class="form-check-label">Pedal de Arranque</label></td>
+                               <td><input type="checkbox" class="form-check-input"></td>
+                               <td><label class="form-check-label">Jebes de Estribo LH-RH</label></td>
+                               <td><input type="checkbox" class="form-check-input"></td>
+                               <td><label class="form-check-label">Tapa de Gasolina</label></td>
+                               <td><input type="checkbox" class="form-check-input"></td>
+                               <td><label class="form-check-label">Tapa Deposito Freno</label></td>
+                           </tr>
+                       </table>
+                   </tr>
+               </tbody>
+           </table> -->
+               <section>
+                   <div class="row">
+                       <div class="col-md-4">
+                           <img src="img/honda_logo.png" class="img-thumbnail border-0" alt="" srcset="">
+                       </div>
+                       <div class="col-md-6">
+                         <span> <strong>REQUERIMIENTOS DEL CLIENTE</strong> </span>  
+                         <br>
+                         <span><h3>INVENTARIO DEL VEHICULO</h3></span>
+                       </div>
+                   </div>
+                   <br>
+                   <div>
+                       <vue-multiselect 
+                           v-model="value" 
+                           :options="options" 
+                           :multiple="true" 
+                           :close-on-select="false" 
+                           :clear-on-select="true" 
+                           :preserve-search="true"
+                           :hide-selected="true" 
+                           placeholder="Seleccione" 
+                           label="name" 
+                           track-by="name" 
+                           :preselect-first="false">
+                       <!-- <template slot="selection" slot-scope="{ values, search, isOpen }"><span class="multiselect__single" v-if="values.length &amp;&amp; !isOpen">{{ values.length }} options selected</span></template> -->
+                       </vue-multiselect>
+                       <!-- <pre class="language-json"><code>{{ value  }}</code></pre> -->
+                 </div>
+               </section>
+               
+       </div>   
+       <div class="contenido">
+           
+               <div>
+                   <div class="e1">
+                       <input type="checkbox" v-model="tapiz_asiento" class="form-check-input">
+                       <label class="form-check-label">Tapiz de Asiento</label>
+                   </div>
+                   <div class="e2">
+                       <input type="checkbox" v-model="espejo" class="form-check-input">
+                       <label class="form-check-label">Espejo LH - RH</label>
+                   </div>
+                   <div class="e3">
+                       <input type="checkbox" v-model="cubre_cadena" class="form-check-input">
+                       <label class="form-check-label">Cubre cadena</label>
+                   </div>
+   
+                   <div class="e4">
+                       <input type="checkbox" v-model="tapas_laterales" class="form-check-input">
+                       <label class="form-check-label">Tapas laterales LH - RH</label>
+                   </div>
+                   <div class="e5">
+                       <input type="checkbox" v-model="llanta_posterior" class="form-check-input">
+                       <label class="form-check-label">Llanta posterior</label>
+                   </div>
+                   <div class="e6">
+                       <input type="checkbox" v-model="guardafango_delantero" class="form-check-input">
+                       <label class="form-check-label">Guardafango delantero</label>
+                   </div>
+                   <div class="e7">
+                       <input type="checkbox" v-model="guardafango_posterior" class="form-check-input">
+                       <label class="form-check-label">Guardafanfo posterior</label>
+                   </div>
+                   <div class="e8">
+                       <input type="checkbox" v-model="faro_delantero"  class="form-check-input">
+                       <label class="form-check-label">Faro delantero</label>
+                   </div>
+                   <div class="e9">
+                       <input type="checkbox" v-model="llanta_delantera" class="form-check-input">
+                       <label class="form-check-label">Llanta delantera</label>
+                   </div>
+               </div>
+           
+       </div>
+      </div>  
+     
+
+    <div class="d-flex justify-content-end margin">
+        <button type="submit" class="btn btn-light mr-2" v-on:click="cancelar">Cancelar <i class="fas fa-cancel"></i></button>
+        <button type="submit" class="btn btn-primary" v-on:click="guardarDatos">Guardar <i class="fas fa-save"></i></button>
+    </div>
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">Error</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              Ha ocurrido un error
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+</div>
+    <script src="https://live.zwidgets.com/js-sdk/1.1/ZohoEmbededAppSDK.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-p34f1UUtsS3wqzfto5wAAmdvj+osOnFyQFpp4Ua3gs/ZVWx6oOypYoCJhGGScy+8" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.min.js" integrity="sha384-lpyLfhYuitXl2zRZ5Bn2fqnhNAKOAaM/0Kr9laMspuaMiZfGmfwRNFh8HlMy49eQ" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <script src="lib/luxon.min.js"></script>
+    <script src="lib/vue-datetime.min.js"></script>
+    <script src="lib/vue-multiselect.min.js"></script>
+    <script src="lib/html2canvas.min.js"></script>
+    <!-- <script src="https://unpkg.com/vue-multiselect@2.1.0"></script> -->
+    <script src="js/app.js"></script>
+</body>
+
+</html>
