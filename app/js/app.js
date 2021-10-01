@@ -2,7 +2,6 @@ Vue.component('vue-multiselect', window.VueMultiselect.default)
 var app = new Vue({
     el: '#app',
     data: {
-
       message: 'Hello Vue!',
       entity : {
         id : null,
@@ -120,7 +119,6 @@ var app = new Vue({
               sis_escape:null,
               sis_direccion:null,
               otros:null,
-            //   ********
               mo_revision:null,
               mo_mecanica:null,
               servicios_terceros:null,
@@ -242,7 +240,7 @@ var app = new Vue({
                       "Modelo": this.orden_servicio.datos_vehiculo.modelo,
                       "Numero_de_Motor": this.orden_servicio.datos_vehiculo.n_motor,
                       "N_mero_de_chasis": this.orden_servicio.datos_vehiculo.n_chasis,
-                      "A_o": this.convertDate(this.orden_servicio.datos_vehiculo.anio_fabricacion),
+                      "A_o_de_Fabricaci_n": this.convertDate(this.orden_servicio.datos_vehiculo.anio_fabricacion),
                       "Color": this.orden_servicio.datos_vehiculo.color,
                       "Placa": this.orden_servicio.datos_vehiculo.placa,
                       "Kilometraje": this.orden_servicio.datos_vehiculo.kilometraje,
@@ -280,9 +278,8 @@ var app = new Vue({
             let data =  await this.updateRecord();
             let message_request = data.data[0].code;
             console.log(message_request);
-            await this.htmlToCanvas();
             if (message_request === 'SUCCESS') {
-
+                await this.htmlToCanvas();
                 let updatedBlueprint =  await this.updateBlueprint();
                 // this.closeReloadWidget();
                 console.log(updatedBlueprint);    
@@ -397,21 +394,16 @@ var app = new Vue({
             var image = "";
             var contenido = document.getElementById("marco-captura");
             // document.body;
-            html2canvas(contenido).then(function(canvas){ 
-                image = canvas.toDataURL();
-                var ImageURL = image;
-                var block = ImageURL.split(";");
-                var contentType = block[0].split(":")[1];
-                var realData = block[1].split(",")[1];
-                var blob = ref.b64toBlob(realData, contentType);
-                ZOHO.CRM.API.attachFile({ Entity: ref.entity.module, RecordID: ref.entity.id, File: { Name: "post-venta.png", Content: blob } }).then(function (data) {
-                  console.log("AttachFile", data);
-                });
-              
-            });
+            let canvas = await html2canvas(contenido);
+            image = canvas.toDataURL();
+            var ImageURL = image;
+            var block = ImageURL.split(";");
+            var contentType = block[0].split(":")[1];
+            var realData = block[1].split(",")[1];
+            var blob = ref.b64toBlob(realData, contentType);
+            let attach_file =  await ZOHO.CRM.API.attachFile({ Entity: ref.entity.module, RecordID: ref.entity.id, File: { Name: "post-venta.png", Content: blob } });
+            console.log(attach_file);
         }
-        
-
     },
     created: function(){
         this.onLoad();

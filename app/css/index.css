@@ -2,7 +2,7 @@
 .contenido{
   height: 100vh;
   margin: 25px;
-  background: url("../img/moto\ -\ copia.jpg");
+  background: url("../img/moto_copia.jpg");
   background-repeat: no-repeat;
   background-size: 100% 100%;
   outline: 2px solid black;
@@ -89,4 +89,11 @@
   height: 37px;
   outline: none;
   border: 1px solid white;
+}
+hr{
+  background-color: red;
+}
+.multiselect__tag {
+  background: #e7e6e6 !important;
+  color: black !important;
 }
