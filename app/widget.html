@@ -6,536 +6,696 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Los Portales</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w==" crossorigin="anonymous" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/css/bootstrap-select.min.css">
+    <link rel="stylesheet" href="lib/bootstrap.css">
     <link rel="stylesheet" href="lib/vue-multiselect.min.css">
     <link rel="stylesheet" href="lib/vue-datetime.min.css">
-    <link rel="stylesheet" href="lib/vue-select.css">
+    <!-- <link rel="stylesheet" href="lib/vue-select.css"> -->
+    <!-- <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" /> -->
     <link rel="stylesheet" href="./css/index.css">
-
 </head>
 
 <body>
     <div id="app">
-        <div class="container mt-5 d-flex justify-content-center margin-2">
-
-            <button class="btn btn-primary  m-2" :disabled="!show.anterior" v-on:click="anterior"> &laquo; Anterior  </button>
-            <button class="btn btn-danger  m-2" :disabled="!show.siguiente" v-on:click="siguiente">Siguiente 	&raquo;</button>
+        <div v-if="loading_widget">
+            <img class="rounded mx-auto d-block" src="./img/cargando-loading-048.gif" alt="">
         </div>
+       <div v-if="!loading_widget" >
+            <div v-if="tiene_proforma_activa" class="container mt-4">
+                <div class="alert alert-danger text.center" role="alert">
+                    {{ message }}
+                  </div>
+            </div>
+            <div v-else>
+                <div class="container mt-5 d-flex justify-content-center margin-2">
 
-           <div v-if="show.primero" id="primero">
-               <div class="container mt-4">
-                   <h1 class="text-center">Propietarios</h1>
-                   <hr>
-                    <div class="row mb-3 mt-5">
-                        <label class="form-label col-md-4">Tipo de Venta <span class="color-red">*</span></label>
-                        <div class="form-group col-md-8">
-                            <select class="form-select" v-model="$v.tipoDeVenta.$model" :class="{ 'is-invalid': $v.tipoDeVenta.$error }">
-                                <option value="" disabled>--Seleccione una opcion--</option>
-                                <option>TITULAR</option>
-                                <option>TITULAR + CO.PROP1</option>
-                                <option>TITULAR + CO.PROP1 + CO.PROP2</option>
-                                <option>TITULAR + CO.PROP1 + CO.PROP2 + CO.PROP3</option>
-                                <option>TITULAR + CO.PROP1 + CO.PROP2 + CO.PROP3 + CO.PROP4</option>
-                                <option>TITULAR + CO.PROP1 + CO.PROP2 + CO.PROP3 + CO.PROP4 + CO.PROP5</option>
-                                <option>EMPRESA + RRLL1</option>
-                                <option>EMPRESA + RRLL1 + RRLL2</option>
-                                <option>TIT.MENOR + PADRE Y MADRE</option>
-                                <option>TIT.MENOR + PADRE</option>
-                                <option>TIT.MENOR + MADRE</option>
-                                <option>TIT.MENOR + APODERADO</option>
-                            </select>
-                            <div v-if="$v.tipoDeVenta.$error" class="invalid-feedback">
-                                <p v-if="!$v.tipoDeVenta.required" class="mb-0">
-                                    Este campo es requerido.
-                                </p>
+                    <button class="btn btn-primary  m-2" :disabled="!show.anterior" v-on:click="anterior"> &laquo; Anterior  </button>
+                    <button class="btn btn-danger  m-2" :disabled="!show.siguiente || $v.propietarios.$invalid" v-on:click="siguiente">Siguiente 	&raquo;</button>
+                </div>
+                <div v-if="show.primero" id="primero">
+                       <div class="container mt-4">
+                           <h1 class="text-center">Propietarios</h1>
+                           <hr>
+                           <div v-if="tipoComprador" class="row mt-5">
+                                <label class="form-label col-md-4">Tipo de Comprador <span class="color-red">*</span></label>
+                                <div class="form-group col-md-8">
+                                    <input type="text"  class="form-control" v-model="tipoComprador" :disabled="true" >                                
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label class="form-label col-md-4">Tipo de Venta <span class="color-red">*</span></label>
+                                <div class="form-group col-md-8">
+                                    <select class="form-control " v-model="$v.tipoDeVenta.$model" :class="{ 'is-invalid': $v.tipoDeVenta.$error }">
+                                        <option value="" disabled>--Seleccione una opcion--</option>
+                                        <option v-for="optionTipoVenta in optionsTipoVenta" :value="optionTipoVenta.value"> {{ optionTipoVenta.label }} </option>
+                                    </select>
+                                    <div v-if="$v.tipoDeVenta.$error" class="invalid-feedback">
+                                        <p v-if="!$v.tipoDeVenta.required" class="mb-0">
+                                            Este campo es requerido.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div 
+                                style="overflow-x: auto; overflow-y: hidden; "
+                                v-if="propietarios.length > 0" 
+                                class="row mb-3 mt-2" 
+                                >
+                                
+        
+                                <table class="table" style="width: 100%;">
+                                    <thead class="">
+                                        <tr>
+                                            <th>Tipo de Propietario</th>
+                                            <th>Tipo de Documento</th>
+                                            <th>Numero de Documento</th>
+                                            <th>Nombre de Propietario</th>
+                                            <th>Tipo de Poder</th>
+                                            <th>Poder Inscrito</th>
+                                            <th>N° de Partida</th>
+                                            <th>Oficina</th>
+                                            <th>Fecha de Dcto</th>
+                                            <th>Letra Aceptante</th>
+                                            <th>Letra Lateral</th>
+                                            <th>A1 Cabecera</th>
+                                            <th>A1 Pie</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="mt-10">
+                                        <tr v-for="(propietario,index) in $v.propietarios.$each.$iter" v-bind:class="{disabled: isDisabled(propietario)}">
+                                            
+                                            <td> 
+                                                <input class="form-control w-330" type="text" v-model="propietario.tipo.$model" name="" id="" :disabled="propietario.$model.disabled || index == 0"  >
+                                            </td>
+                                            <td>
+                                                <select v-model="propietario.tipoDeDocumento.$model" class="form-control w-200" name="tipo_documento" :disabled="propietario.$model.disabled ||  index == 0" >
+                                                    <option value="" disabled>--Seleccione--</option>
+                                                    <option>DNI</option>
+                                                    <option>RUC</option>
+                                                </select>
+                                                
+                                            </td>
+                                            <td>
+                                                <input v-model="propietario.numeroDocumento.$model" class="form-control w-200" type="number" @change ="buscarContacto(propietario,index)" :disabled="index == 0 || propietario.tipoDeDocumento.$model == ''">
+                                            </td>
+                                            <td>
+                                                <div class="">
+                                                    <vue-multiselect 
+                                                        v-model="propietario.nombre.$model" 
+                                                        class="collection w-330" 
+                                                        track-by="id" 
+                                                        label="name" 
+                                                        placeholder="Seleccione" 
+                                                        :options="options" 
+                                                        @input="obtenerDatosAdicionales(propietario.nombre,propietario,index)" 
+                                                        :searchable="true" 
+                                                        :allow-empty="false" 
+                                                        :disabled="true">
+                                                      <template  slot="singleLabel" slot-scope="{ option }" >  {{ option.name }}</template>
+                                                    </vue-multiselect>
+                                                  </div>
+                                                
+                                            </td>
+                                            <td>
+                                                <select v-model="propietario.tipoPoder.$model" class="form-control w-200" name="tipo_poder" :disabled="propietario.$model.disabled">
+                                                    <option value="" disabled>--Seleccione--</option>
+                                                    <option>Separación de Bienes</option>
+                                                    <option>Registro Poder</option>
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <input v-model="propietario.tipoInscrito.$model" class="form-control w-200" name="poder_inscrito" :disabled="propietario.$model.disabled">
+                                            </td>
+                                            <td>
+                                                <input v-model="propietario.numeroPartida.$model" class="form-control w-200" type="text"  :disabled="propietario.$model.disabled">
+                                            </td>
+                                            <td>
+                                                <input v-model="propietario.oficina.$model" class="form-control w-200" type="text" :disabled="propietario.$model.disabled">
+                                            </td>
+                                            <td>
+                                                <input v-model="propietario.fechaDeDcto.$model" type="date" :disabled="propietario.$model.disabled">
+                                            </td>
+                                            <td>
+                                                <select v-model="propietario.letraAceptante.$model" class="form-control w-200" name="letra_aceptante" :disabled="true">
+                                                    <option value="">--Seleccione--</option>
+                                                    <option>Sí</option>
+                                                    <option>No</option>
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <select v-model="propietario.letraLateral.$model" class="form-control w-200" name="letra_lateral" :disabled="true">
+                                                    <option value="">--Seleccione--</option>
+                                                    <option>Sí</option>
+                                                    <option>No</option>
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <select v-model="propietario.A1Cabeza.$model" class="form-control w-200" name="a1_cabecera" :disabled="true">
+                                                    <option value="">--Seleccione--</option>
+                                                    <option>Sí</option>
+                                                    <option>No</option>
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <select v-model="propietario.A1Pie.$model" class="form-control w-200" name="a1_pie" :disabled="true">
+                                                    <option value="">--Seleccione--</option>
+                                                    <option>Sí</option>
+                                                    <option>No</option>
+                                                </select>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                       </div>
+                    </div>        
+                   <div v-if="show.segundo">
+                    <div class="container mt-4">
+                        <h1 class="text-center">Proforma</h1>
+                        <hr>
+                        <div class="row mb-3 mt-5">
+                            <label class="form-label col-md-4">Moneda <span class="color-red">*</span></label>
+                            <div class="form-group col-md-8">
+                                <input 
+                                type="text" 
+                                v-model="moneda"
+                                class="form-control"
+                                disabled
+                                 >
                             </div>
                         </div>
-                    </div>
-                    <div 
-                        style="overflow-x: auto; overflow-y: hidden; "
-                        v-if="propietarios.length > 0" 
-                        class="row mb-3 mt-5" 
-                        >
-                        <table class="table table-striped" style="width: 100%;">
-                            <thead>
-                                <tr>
-                                    <th>Tipo de Propietario</th>
-                                    <th>Nombre de Propietario</th>
-                                    <th>Tipo de Documento</th>
-                                    <th>Numero de Documento</th>
-                                    <th>Tipo de Poder</th>
-                                    <th>Tipo de Inscrito</th>
-                                    <th>N° de Partida</th>
-                                    <th>Oficina</th>
-                                    <th>Fecha de Dcto</th>
-                                    <th>Letra Aceptante</th>
-                                    <th>Letra Lateral</th>
-                                    <th>A1 Cabecera</th>
-                                    <th>A1 Pie</th>
-                                </tr>
-                            </thead>
-                            <tbody class="mt-10">
-                                <tr v-for="propietario in propietarios">
-                                    <td> 
-                                        <input type="text" v-model="propietario.tipo" name="" id="">
-                                    </td>
-                                    <td>
-                                        <v-select class="form-control " :options="options"></v-select>
-                                    </td>
-                                    <td>
-                                        <select name="tipo_documento" id="" >
-                                            <option value="">--Seleccione--</option>
-                                            <option>DNI</option>
-                                            <option>RUC</option>
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <input type="text" name="" id="">
-                                    </td>
-                                    <td>
-                                        <select class="selectpicker" name="tipo_poder" id="">
-                                            <option value="">--Seleccione--</option>
-                                            <option>Sí</option>
-                                            <option>No</option>
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <select name="poder_inscrito" id="">
-                                            <option value="">--Seleccione--</option>
-                                            <option>Sí</option>
-                                            <option>No</option>
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <input type="text" name="" id="">
-                                    </td>
-                                    <td>
-                                        <input type="text" name="" id="">
-                                    </td>
-                                    <td>
-                                        <input type="date" name="" id="">
-                                    </td>
-                                    <td>
-                                        <select name="letra_aceptante" id="">
-                                            <option value="">--Seleccione--</option>
-                                            <option>Sí</option>
-                                            <option>No</option>
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <select name="letra_lateral" id="">
-                                            <option value="">--Seleccione--</option>
-                                            <option>Sí</option>
-                                            <option>No</option>
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <select name="a1_cabecera" id="">
-                                            <option value="">--Seleccione--</option>
-                                            <option>Sí</option>
-                                            <option>No</option>
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <select name="a1_pie" id="">
-                                            <option value="">--Seleccione--</option>
-                                            <option>Sí</option>
-                                            <option>No</option>
-                                        </select>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-               </div>
-           
-            </div>        
-           <div v-if="show.segundo">
-            <div class="container mt-4">
-                <h1 class="text-center">Proforma</h1>
-                <hr>
-                <div class="row mb-3 mt-5">
-                    <label class="form-label col-md-4">Proforma <span class="color-red">*</span></label>
-                    <div class="form-group col-md-8">
-                        <select    
-                            v-model="$v.proforma.$model" :class="{ 'is-invalid': $v.proforma.$error }"
-                            class="form-select" 
-                         >
-                            <option value="" disabled>--Seleccione una opcion--</option>
-                            <option>Contado</option>
-                            <option>Hipotecario</option>
-                            <option>Directo</option>
-                            <option>Plan Ahorro</option>
-                        </select>
-                        <div v-if="$v.proforma.$error" class="invalid-feedback">
-                            <p v-if="!$v.proforma.required" class="mb-0">
-                                Este campo es requerido.
-                            </p>
+                        <div class="row mb-3">
+                            <label class="form-label col-md-4">Proforma <span class="color-red">*</span></label>
+                            <div class="form-group col-md-8">
+                                <select    
+                                    v-model="proforma"
+                                    class="form-control" 
+                                 >
+                                    <option value="" disabled>--Seleccione una opcion--</option>
+                                    <option>Contado</option>
+                                    <option>Hipotecario</option>
+                                    <option>Directo</option>
+                                    <option>Plan Ahorro</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div v-if="proforma == 'Contado'">
+                            <hr>
+                            <fieldset>
+                                <section>
+                                    <div class="row mb-3">
+                                        <label class="form-label col-md-4">Fecha de Vencimiento <span class="color-red">*</span></label>
+                                        <div class="form-group col-md-8">
+                                            <select class="form-control" v-model="contado.fechaVencimiento">
+                                                <option value="" disabled>--Seleccione una opcion--</option>
+                                                <option value="Inicio de Mes">Inicio de Mes</option>
+                                                <option value="Fin de Mes">Fin de Mes</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <label class="form-label col-md-4">Banco <span class="color-red">*</span></label>
+                                        <div class="form-group col-md-8">
+                                            <select    
+                                                v-model="contado.banco"
+                                                class="form-control" 
+                                             >
+                                                <option value="" disabled>--Seleccione una opcion--</option>
+                                                <option value="BCP">BCP</option>
+                                                <option value="Interbank">Interbank</option>
+                                                <option value="Pichincha">Pichincha</option>
+                                                <option value="Comercio">Comercio</option>
+                                                <option value="Cajas">Cajas</option>
+                                                <option value="Otros">Otros</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </section>
+                            </fieldset>
+                        </div>
+                        <div v-if="proforma == 'Hipotecario'">
+                            <hr>
+                            <fieldset>
+                                <section>
+                                    <div class="row mb-3">
+                                        <label class="form-label col-md-4">Fecha de Vencimiento <span class="color-red">*</span></label>
+                                        <div class="form-group col-md-8">
+                                            <select class="form-control" v-model="hipotecario.fechaVencimiento">
+                                                <option value="" disabled>--Seleccione una opcion--</option>
+                                                <option value="Inicio de Mes">Inicio de Mes</option>
+                                                <option value="Fin de Mes">Fin de Mes</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <label class="form-label col-md-4">Cuota inicial fraccionada <span class="color-red">*</span></label>
+                                        <div class="form-group col-md-8">
+                                            <select class="form-control" v-model="hipotecario.cuotaInicial">
+                                                <option value="" disabled>--Seleccione una opcion--</option>
+                                                <option >Sí</option>
+                                                <option >No</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div v-if="hipotecario.cuotaInicial == 'Sí'" class="row mb-3">
+                                        <label class="form-label col-md-4">Numero de cuotas fraccionada <span class="color-red">*</span></label>
+                                        <div class="form-group col-md-8">
+                                            <input type="number" class="form-control" v-model="hipotecario.numeroCuotas">  
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <label class="form-label col-md-4">Banco <span class="color-red">*</span></label>
+                                        <div class="form-group col-md-8">
+                                            <select    
+                                                v-model="hipotecario.banco"
+                                                class="form-control" 
+                                             >
+                                                <option value="" disabled>--Seleccione una opcion--</option>
+                                                <option value="BCP">BCP</option>
+                                                <option value="Interbank">Interbank</option>
+                                                <option value="Pichincha">Pichincha</option>
+                                                <option value="Comercio">Comercio</option>
+                                                <option value="Cajas">Cajas</option>
+                                                <option value="Otros">Otros</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <label class="form-label col-md-4">AFP <span class="color-red">*</span></label>
+                                        <div class="form-group col-md-8">
+                                            <select 
+                                                v-model="hipotecario.AFP"
+                                                class="form-control"
+                                            >
+                                                <option value="" disabled>--Seleccione una opcion--</option>
+                                                <option value="Sí">Sí</option>
+                                                <option value="No">No</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div v-if="hipotecario.AFP == 'Sí'" class="row mb-3">
+                                        <label class="form-label col-md-4">Monto AFP <span class="color-red">*</span></label>
+                                        <div class="form-group col-md-8">
+                                            <input 
+                                                v-model="hipotecario.montoAFP" 
+                                                class="form-control" 
+                                                type="number">
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <label class="form-label col-md-4">Bono BP <span class="color-red">*</span></label>
+                                        <div class="form-group col-md-8">
+                                            <select class="form-control" 
+                                            v-model="hipotecario.bonoBP" 
+                                            disabled
+                                                >
+                                                <option value="" disabled>--Seleccione una opcion--</option>
+                                                <option value="Sí">Sí</option>
+                                                <option value="No">No</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div v-if="hipotecario.bonoBP == 'Sí'" class="row mb-3">
+                                        <label class="form-label col-md-4">Monto BBP <span class="color-red">*</span></label>
+                                        <div class="form-group col-md-8">
+                                            <input 
+                                                v-model="hipotecario.montoBBP" 
+                                                class="form-control" 
+                                                type="number"
+                                                disabled>
+                                        </div>
+                                    </div>
+                                    <div v-if="hipotecario.bonoBP == 'Sí'" class="row mb-3">
+                                        <label class="form-label col-md-4">Bono Verde <span class="color-red">*</span></label>
+                                        <div class="form-group col-md-8">
+                                            <select 
+                                                v-model="hipotecario.bonoVerde"
+                                                class="form-control" 
+                                                disabled
+                                            >
+                                                <option value="" disabled>--Seleccione una opcion--</option>
+                                                <option value="Sí">Sí</option>
+                                                <option value="No">No</option>
+                                            </select>    
+                                        </div>
+                                    </div>
+                                    <div v-if="hipotecario.bonoVerde == 'Sí'" class="row mb-3">
+                                        <label class="form-label col-md-4">Monto Bono Verde <span class="color-red">*</span></label>
+                                        <div class="form-group col-md-8">
+                                            <input 
+                                                v-model="hipotecario.montoBonoVerde"
+                                                class="form-control" 
+                                                type="number"
+                                                disabled
+                                            >
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <label class="form-label col-md-4"> Regalo <span class="color-red">*</span></label>
+                                        <div class="form-group col-md-8">
+                                            <select class="form-control" 
+                                            v-model="hipotecario.regalo" 
+                                                >
+                                                <option value="" disabled>--Seleccione una opcion--</option>
+                                                <option value="Sí">Sí</option>
+                                                <option value="No">No</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3" v-if="hipotecario.regalo == 'Sí'">
+                                        <label class="form-label col-md-4"> Porcentaje Regalo <span class="color-red">*</span></label>
+                                        <div class="form-group col-md-8">
+                                            <input 
+                                                v-model="hipotecario.porcentaje_regalo"
+                                                class="form-control" 
+                                                type="number"
+                                            >
+                                        </div>
+                                    </div>
+                                </section>
+                            </fieldset>
+                        </div>
+                        <div v-if="proforma == 'Directo'">
+                            <hr>
+                            <fieldset>
+                                <section>
+                                    <div class="row mb-3">
+                                        <label class="form-label col-md-4">Fecha de Vencimiento <span class="color-red">*</span></label>
+                                        <div class="form-group col-md-8">
+                                            <select class="form-control" v-model="directo.fechaVencimiento">
+                                                <option value="" disabled>--Seleccione una opcion--</option>
+                                                <option value="Inicio de Mes">Inicio de Mes</option>
+                                                <option value="Fin de Mes">Fin de Mes</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <label class="form-label col-md-4">Cuota inicial fraccionada <span class="color-red">*</span></label>
+                                        <div class="form-group col-md-8">
+                                            <select class="form-control" v-model="directo.cuotaInicial">
+                                                <option value="" disabled>--Seleccione una opcion--</option>
+                                                <option >Sí</option>
+                                                <option >No</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div v-if="directo.cuotaInicial == 'Sí'" class="row mb-3">
+                                        <label class="form-label col-md-4">Numero de cuotas fraccionadas <span class="color-red">*</span></label>
+                                        <div class="form-group col-md-8">
+                                            <input type="number" class="form-control" v-model="directo.numeroCuotas">  
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <label class="form-label col-md-4">Banco <span class="color-red">*</span></label>
+                                        <div class="form-group col-md-8">
+                                            <select    
+                                                v-model="directo.banco" 
+                                                class="form-control" 
+                                             >
+                                                <option value="" disabled>--Seleccione una opcion--</option>
+                                                <option value="BCP">BCP</option>
+                                                <option value="Interbank">Interbank</option>
+                                                <option value="Pichincha">Pichincha</option>
+                                                <option value="Comercio">Comercio</option>
+                                                <option value="Cajas">Cajas</option>
+                                                <option value="Otros">Otros</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <label class="form-label col-md-4">Tipos de cuotas<span class="color-red">*</span></label>
+                                        <div class="form-group col-md-8">
+                                            <select 
+                                                v-model="directo.tiposDeCuotas"
+                                                class="form-control"
+                                            >
+                                                <option value="" disabled>--Seleccione una opcion--</option>
+                                                <option>Simple</option>
+                                                <option>Dobles</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <label class="form-label col-md-4">Letras <span class="color-red">*</span></label>
+                                        <div class="form-group col-md-8">
+                                            <input 
+                                                v-model="directo.letras" 
+                                                class="form-control" 
+                                                type="number">
+                                        </div>
+                                    </div>
+                                </section>
+                            </fieldset>
+        
+                        </div>
+                        <div v-if="proforma == 'Plan Ahorro'">
+                            <hr>
+                            <fieldset>
+                                <section>
+                                    <div class="row mb-3">
+                                        <label class="form-label col-md-4">Fecha de Vencimiento <span class="color-red">*</span></label>
+                                        <div class="form-group col-md-8">
+                                            <select class="form-control" v-model="planAhorro.fechaVencimiento">
+                                                <option value="" disabled>--Seleccione una opcion--</option>
+                                                <option value="Inicio de Mes">Inicio de Mes</option>
+                                                <option value="Fin de Mes">Fin de Mes</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <label class="form-label col-md-4">Banco <span class="color-red">*</span></label>
+                                        <div class="form-group col-md-8">
+                                            <select    
+                                                v-model="planAhorro.banco"
+                                                class="form-control" 
+                                             >
+                                                <option value="" disabled>--Seleccione una opcion--</option>
+                                                <option value="BCP">BCP</option>
+                                                <option value="Interbank">Interbank</option>
+                                                <option value="Pichincha">Pichincha</option>
+                                                <option value="Comercio">Comercio</option>
+                                                <option value="Cajas">Cajas</option>
+                                                <option value="Otros">Otros</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <label class="form-label col-md-4">AFP <span class="color-red">*</span></label>
+                                        <div class="form-group col-md-8">
+                                            <select 
+                                                v-model="planAhorro.AFP"
+                                                class="form-control"
+                                            >
+                                                <option value="" disabled>--Seleccione una opcion--</option>
+                                                <option value="Sí">Sí</option>
+                                                <option value="No">No</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div v-if="planAhorro.AFP =='Sí'" class="row mb-3">
+                                        <label class="form-label col-md-4">Monto AFP <span class="color-red">*</span></label>
+                                        <div class="form-group col-md-8">
+                                            <input 
+                                                v-model="planAhorro.montoAFP" 
+                                                class="form-control" 
+                                                type="number">
+                                        </div>
+                                    </div>
+                                    <!-- <div v-if="planAhorro.AFP =='Sí'" class="row mb-3">
+                                        <label class="form-label col-md-4">AFP N° Cuenta <span class="color-red">*</span></label>
+                                        <div class="form-group col-md-8">
+                                            <input 
+                                                v-model="planAhorro.numeroCuenta" 
+                                                class="form-control" type="text"
+                                                >
+                                        </div>
+                                    </div> -->
+        
+                                    <div class="row mb-3">
+                                        <label class="form-label col-md-4">Bono BP <span class="color-red">*</span></label>
+                                        <div class="form-group col-md-8">
+                                            <select 
+                                                class="form-control" 
+                                                v-model="planAhorro.bonoBP"
+                                                disabled 
+                                                >
+                                                <option value="" disabled>--Seleccione una opcion--</option>
+                                                <option value="Sí">Sí</option>
+                                                <option value="No">No</option>
+                                            </select>
+                                        </div>
+                    
+                                    </div>
+                                    <!-- :class="{ 'is-invalid': $v.montoBBP.$error }" -->
+                                    <div v-if="planAhorro.bonoBP == 'Sí'" class="row mb-3">
+                                        <label class="form-label col-md-4">Monto BBP <span class="color-red">*</span></label>
+                                        <div class="form-group col-md-8">
+                                            <input 
+                                                v-model="planAhorro.montoBBP" 
+                                                class="form-control" 
+                                                type="number"
+                                                disabled>
+                                        </div>
+                                    </div>
+                                    <div v-if="planAhorro.bonoBP == 'Sí'" class="row mb-3">
+                                        <label class="form-label col-md-4">Bono Verde <span class="color-red">*</span></label>
+                                        <div class="form-group col-md-8">
+                                            <select 
+                                                v-model="planAhorro.bonoVerde"
+                                                class="form-control" 
+                                                disabled
+                                            >
+                                                <option value="" disabled>--Seleccione una opcion--</option>
+                                                <option value="Sí">Sí</option>
+                                                <option value="No">No</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div v-if="planAhorro.bonoVerde == 'Sí'" class="row mb-3">
+                                        <label class="form-label col-md-4">Monto Bono Verde <span class="color-red">*</span></label>
+                                        <div class="form-group col-md-8">
+                                            <input 
+                                                v-model="planAhorro.montoBonoVerde"
+                                                class="form-control" 
+                                                type="number"
+                                                disabled
+                                            >
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <label class="form-label col-md-4">Cuotas Plan Ahorro <span class="color-red">*</span></label>
+                                        <div class="form-group col-md-8">
+                                            <input 
+                                                v-model="planAhorro.cuotasPlanAhorro" 
+                                                class="form-control" 
+                                                type="number">
+                                        </div>
+                                    </div>
+                                </section>
+                            </fieldset>
                         </div>
                     </div>
-                </div>
-                <div v-if="proforma == 'Hipotecario'">
-                    <hr>
-                    <fieldset>
-                        <section>
-                            <div class="row mb-3">
-                                <label class="form-label col-md-4">Fecha de Vencimiento <span class="color-red">*</span></label>
-                                <div class="form-group col-md-8">
-                                    <select class="form-select" v-model="hipotecario.fechaVencimiento">
-                                        <option value="" disabled>--Seleccione una opcion--</option>
-                                        <option value="Inicio de Mes">Inicio de Mes</option>
-                                        <option value="Fin de Mes">Fin de Mes</option>
-                                    </select>
-                                </div>
+                    <!-- rows -->
+                    <!-- :disabled = "$v.$invalid"  -->
+                    <div class="d-flex justify-content-center margin">
+                        <button type="submit" class="btn btn-light mr-2" v-on:click="cancelar">Cancelar <i
+                                class="fas fa-cancel"></i></button>
+                        <button
+                            type="submit" 
+                            class="btn btn-primary" 
+                            v-on:click="guardarDatos"
+                            :disabled = "loading"
+                            >
+                            <div v-if="loading">
+                                <span  class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                <span> Cargando ...</span>
                             </div>
-                            <div class="row mb-3">
-                                <label class="form-label col-md-4">Banco <span class="color-red">*</span></label>
-                                <div class="form-group col-md-8">
-                                    <select    
-                                        v-model="hipotecario.banco"
-                                        class="form-select" 
-                                     >
-                                        <option value="" disabled>--Seleccione una opcion--</option>
-                                        <option value="BCP">BCP</option>
-                                        <option value="Interbank">Interbank</option>
-                                        <option value="Pichincha">Pichincha</option>
-                                        <option value="Comercio">Comercio</option>
-                                        <option value="Cajas">Cajas</option>
-                                        <option value="Otros">Otros</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="row mb-3">
-                                <label class="form-label col-md-4">AFP <span class="color-red">*</span></label>
-                                <div class="form-group col-md-8">
-                                    <select 
-                                        v-model="hipotecario.AFP"
-                                        class="form-select"
-                                    >
-                                        <option value="" disabled>--Seleccione una opcion--</option>
-                                        <option value="Sí">Sí</option>
-                                        <option value="No">No</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="row mb-3">
-                                <label class="form-label col-md-4">Bono BP <span class="color-red">*</span></label>
-                                <div class="form-group col-md-8">
-                                    <select class="form-select" v-model="hipotecario.bonoBP" 
-                                        aria-label="Default select example">
-                                        <option value="" disabled>--Seleccione una opcion--</option>
-                                        <option value="Sí">Sí</option>
-                                        <option value="No">No</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div v-if="bonoBP == 'Sí'" class="row mb-3">
-                                <label class="form-label col-md-4">Monto BBP <span class="color-red">*</span></label>
-                                <div class="form-group col-md-8">
-                                    <input 
-                                        v-model="$v.montoBBP.$model" 
-                                        class="form-control" 
-                                        type="number">
-                                </div>
-                            </div>
-                            <div class="row mb-3">
-                                <label class="form-label col-md-4">Bono Verde <span class="color-red">*</span></label>
-                                <div class="form-group col-md-8">
-                                    <select 
-                                        v-model="hipotecario.bonoVerde"
-                                        class="form-select" 
-                                    >
-                                        <option value="" disabled>--Seleccione una opcion--</option>
-                                        <option value="Sí">Sí</option>
-                                        <option value="No">No</option>
-                                    </select>    
-                                </div>
-                            </div>
-                            <div v-if="bonoVerde == 'Sí'" class="row mb-3">
-                                <label class="form-label col-md-4">Monto Bono Verde <span class="color-red">*</span></label>
-                                <div class="form-group col-md-8">
-                                    <input 
-                                        v-model="hipotecario.montoBonoVerde"
-                                        class="form-control" 
-                                        type="number"
-                                    >
-                                </div>
-                            </div>
-                        </section>
-                    </fieldset>
-                </div>
-                <div v-if="proforma == 'Directo'">
-                    <hr>
-                    <fieldset>
-                        <section>
-                            <div class="row mb-3">
-                                <label class="form-label col-md-4">Fecha de Vencimiento <span class="color-red">*</span></label>
-                                <div class="form-group col-md-8">
-                                    <select class="form-select" v-model="directo.fechaVencimiento">
-                                        <option value="" disabled>--Seleccione una opcion--</option>
-                                        <option value="Inicio de Mes">Inicio de Mes</option>
-                                        <option value="Fin de Mes">Fin de Mes</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="row mb-3">
-                                <label class="form-label col-md-4">Banco <span class="color-red">*</span></label>
-                                <div class="form-group col-md-8">
-                                    <select    
-                                        v-model="directo.banco" 
-                                        class="form-select" 
-                                     >
-                                        <option value="" disabled>--Seleccione una opcion--</option>
-                                        <option value="BCP">BCP</option>
-                                        <option value="Interbank">Interbank</option>
-                                        <option value="Pichincha">Pichincha</option>
-                                        <option value="Comercio">Comercio</option>
-                                        <option value="Cajas">Cajas</option>
-                                        <option value="Otros">Otros</option>
-                                    </select>
-                                    <div v-if="$v.banco.$error" class="invalid-feedback">
-                                        <p v-if="!$v.banco.required" class="mb-0">
-                                            Este campo es requerido.
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row mb-3">
-                                <label class="form-label col-md-4">Tipos de cuotas<span class="color-red">*</span></label>
-                                <div class="form-group col-md-8">
-                                    <select 
-                                        v-model="directo.tiposDeCuotas"
-                                        class="form-select"
-                                    >
-                                        <option value="" disabled>--Seleccione una opcion--</option>
-                                        <option>Simple</option>
-                                        <option>Dobles</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="row mb-3">
-                                <label class="form-label col-md-4">Letras <span class="color-red">*</span></label>
-                                <div class="form-group col-md-8">
-                                    <input 
-                                        v-model="directo.letras" 
-                                        class="form-control" 
-                                        type="number">
-                                </div>
-                            </div>
-                        </section>
-                    </fieldset>
+                            <div v-if="!loading">
+                                <span>Guardar</span>
+                                <i class="fas fa-save"></i>    
+                            </div> 
+                        </button>
+                    </div>
+                    <br>
+                    <br>
+                   </div>
+            </div>
 
-                </div>
-                <div v-if="proforma == 'Plan Ahorro'">
-                    <hr>
-                    <fieldset>
-                        <section>
-                            <div class="row mb-3">
-                                <label class="form-label col-md-4">Fecha de Vencimiento <span class="color-red">*</span></label>
-                                <div class="form-group col-md-8">
-                                    <select class="form-select" v-model="$v.fechaVencimiento.$model" :class="{ 'is-invalid': $v.fechaVencimiento.$error }">
-                                        <option value="" disabled>--Seleccione una opcion--</option>
-                                        <option value="Inicio de Mes">Inicio de Mes</option>
-                                        <option value="Fin de Mes">Fin de Mes</option>
-                                    </select>
-                                    <div v-if="$v.fechaVencimiento.$error" class="invalid-feedback">
-                                        <p v-if="!$v.fechaVencimiento.required" class="mb-0">
-                                            Este campo es requerido.
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row mb-3">
-                                <label class="form-label col-md-4">Banco <span class="color-red">*</span></label>
-                                <div class="form-group col-md-8">
-                                    <select    
-                                        v-model="$v.banco.$model" :class="{ 'is-invalid': $v.banco.$error }"
-                                        class="form-select" 
-                                     >
-                                        <option value="" disabled>--Seleccione una opcion--</option>
-                                        <option value="BCP">BCP</option>
-                                        <option value="Interbank">Interbank</option>
-                                        <option value="Pichincha">Pichincha</option>
-                                        <option value="Comercio">Comercio</option>
-                                        <option value="Cajas">Cajas</option>
-                                        <option value="Otros">Otros</option>
-                                    </select>
-                                    <div v-if="$v.banco.$error" class="invalid-feedback">
-                                        <p v-if="!$v.banco.required" class="mb-0">
-                                            Este campo es requerido.
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row mb-3">
-                                <label class="form-label col-md-4">AFP <span class="color-red">*</span></label>
-                                <div class="form-group col-md-8">
-                                    <select 
-                                        v-model="$v.AFP.$model" :class="{ 'is-invalid': $v.AFP.$error }"
-                                        class="form-select"
-                                    >
-                                        <option value="" disabled>--Seleccione una opcion--</option>
-                                        <option value="Sí">Sí</option>
-                                        <option value="No">No</option>
-                                    </select>
-                                    <div v-if="$v.AFP.$error" class="invalid-feedback">
-                                        <p v-if="!$v.AFP.required" class="mb-0">
-                                            Este campo es requerido.
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div v-if="AFP =='Sí'" class="row mb-3">
-                                <label class="form-label col-md-4">AFP N° Cuenta <span class="color-red">*</span></label>
-                                <div class="form-group col-md-8">
-                                    <input v-model="$v.numeroCuenta.$model" :class="{ 'is-invalid': $v.numeroCuenta.$error }"
-                                        class="form-control" type="text">
-                                    <div v-if="$v.numeroCuenta.$error" class="invalid-feedback">
-                                        <p v-if="!$v.numeroCuenta.required" class="mb-0">
-                                            Este campo es requerido.
-                                        </p>
-                                    </div>
-                                    <!-- <pre>{{ $v }}</pre> -->
-                                </div>
-                            </div>
-                            <div class="row mb-3">
-                                <label class="form-label col-md-4">Bono BP <span class="color-red">*</span></label>
-                                <div class="form-group col-md-8">
-                                    <select class="form-select" v-model="$v.bonoBP.$model" :class="{ 'is-invalid': $v.bonoBP.$error }" 
-                                        aria-label="Default select example">
-                                        <option value="" disabled>--Seleccione una opcion--</option>
-                                        <option value="Sí">Sí</option>
-                                        <option value="No">No</option>
-                                    </select>
-                                    <div v-if="$v.bonoBP.$error" class="invalid-feedback">
-                                        <p v-if="!$v.bonoBP.required" class="mb-0">
-                                            Este campo es requerido.
-                                        </p>
-                                    </div>
-                                </div>
-            
-                            </div>
-                            <div v-if="bonoBP == 'Sí'" class="row mb-3">
-                                <label class="form-label col-md-4">Monto BBP <span class="color-red">*</span></label>
-                                <div class="form-group col-md-8">
-                                    <input 
-                                        v-model="$v.montoBBP.$model" 
-                                        :class="{ 'is-invalid': $v.montoBBP.$error }"
-                                        class="form-control" 
-                                        type="number">
-                                        <div v-if="$v.montoBBP.$error" class="invalid-feedback">
-                                            <p v-if="!$v.montoBBP.required" class="mb-0">
-                                                Este campo es requerido.
-                                            </p>
-                                            <p v-if="!$v.montoBBP.numeric" class="mb-0">
-                                                Este campo solo debe ser numerico.
-                                            </p>
-                                        </div>    
-                                </div>
-                            </div>
-                            <div class="row mb-3">
-                                <label class="form-label col-md-4">Bono Verde <span class="color-red">*</span></label>
-                                <div class="form-group col-md-8">
-                                    <select 
-                                        v-model="$v.bonoVerde.$model"
-                                        :class="{ 'is-invalid': $v.bonoVerde.$error }"
-                                        class="form-select" 
-                                    >
-                                        <option value="" disabled>--Seleccione una opcion--</option>
-                                        <option value="Sí">Sí</option>
-                                        <option value="No">No</option>
-                                    </select>
-                                    <div v-if="$v.bonoVerde.$error" class="invalid-feedback">
-                                        <p v-if="!$v.bonoVerde.required" class="mb-0">
-                                            Este campo es requerido.
-                                        </p>
-                                    </div>    
-                                </div>
-                            </div>
-                            <div v-if="bonoVerde == 'Sí'" class="row mb-3">
-                                <label class="form-label col-md-4">Monto Bono Verde <span class="color-red">*</span></label>
-                                <div class="form-group col-md-8">
-                                    <input 
-                                        v-model="$v.montoBonoVerde.$model"
-                                        :class="{ 'is-invalid': $v.montoBonoVerde.$error }"
-                                        class="form-control" 
-                                        type="number"
-                                    >
-                                    <div 
-                                        v-if="$v.montoBonoVerde.$error" 
-                                        class="invalid-feedback">
-                                        <p 
-                                            v-if="!$v.montoBonoVerde.required" 
-                                            class="mb-0">
-                                            Este campo es requerido.
-                                        </p>
-                                    </div>  
-                                </div>
-                            </div>
-                            <div class="row mb-3">
-                                <label class="form-label col-md-4">Cuotas Plan Ahorro <span class="color-red">*</span></label>
-                                <div class="form-group col-md-8">
-                                    <input 
-                                        v-model="$v.cuotasPlanAhorro.$model" 
-                                        :class="{ 'is-invalid': $v.cuotasPlanAhorro.$error }"
-                                        class="form-control" 
-                                        type="number">
-                                        <div v-if="$v.cuotasPlanAhorro.$error" class="invalid-feedback">
-                                            <p v-if="!$v.cuotasPlanAhorro.required" class="mb-0">
-                                                Este campo es requerido.
-                                            </p>
-                                            <p v-if="!$v.cuotasPlanAhorro.numeric" class="mb-0">
-                                                Este campo solo debe ser numerico.
-                                            </p>
-                                        </div>    
-                                </div>
-                            </div>
-                        </section>
-                    </fieldset>
-                </div>
-            </div>
-            <!-- rows -->
-            <div class="d-flex justify-content-center margin">
-                <button type="submit" class="btn btn-light mr-2" v-on:click="cancelar">Cancelar <i
-                        class="fas fa-cancel"></i></button>
-                <button
-                :disabled = "$v.$invalid" 
-                type="submit" 
-                class="btn btn-primary" 
-                v-on:click="guardarDatos">
-                    Guardar 
-                    <i class="fas fa-save"></i></button>
-            </div>
-           </div>
+    </div>
+        
+        
           
         
-        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Error</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <!-- Modal -->
+        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Respuesta</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                </div>
+                <div class="modal-body">
+                    {{ message }}
+                </div>
+                <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button id ="nuevoContacto" type="button" class="btn btn-primary"  >Crear uno nuevo</button>
+                </div>
+            </div>
+            </div>
+        </div>
+        <!-- Modal new Contact -->
+        <div class="modal fade" id="newContact" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Contacto Nuevo</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <label class="form-label col-md-4">Nombre <span class="color-red">*</span></label>
+                        <div class="form-group col-md-8">
+                            <input type="text"  class="form-control" v-model="newContact.nombre" >                                
+                        </div>
                     </div>
-                    <div class="modal-body">
-                        Ha ocurrido un error
+                    <div class="row">
+                        <label class="form-label col-md-4">Apellido <span class="color-red">*</span></label>
+                        <div class="form-group col-md-8">
+                            <input type="text"  class="form-control" v-model="newContact.apellido" >                                
+                        </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <div class="row">
+                        <label class="form-label col-md-4">Tipo de Documento <span class="color-red">*</span></label>
+                        <div class="form-group col-md-8">
+                            <input type="text"  class="form-control" v-model="newContact.tipoDocumento" >                                
+                        </div>
+                    </div>
+                    <div class="row">
+                        <label class="form-label col-md-4">Numero de Documento <span class="color-red">*</span></label>
+                        <div class="form-group col-md-8">
+                            <input type="text"  class="form-control" v-model="newContact.numeroDocumento" >                                
+                        </div>
                     </div>
                 </div>
+                <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                <button id ="guardarContacto" type="button" class="btn btn-primary"  >Guardar</button>
+                </div>
+            </div>
+            </div>
+        </div>
+
+         <!-- Modal -->
+         <div class="modal fade" id="respuestaProforma" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Respuesta</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                </div>
+                <div class="modal-body">
+                    {{ message }}
+                </div>
+                <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <!-- <button id ="nuevoContacto" type="button" class="btn btn-primary"  >Crear uno nuevo</button> -->
+                </div>
+            </div>
             </div>
         </div>
 
     </div>
-    <script src="https://live.zwidgets.com/js-sdk/1.1/ZohoEmbededAppSDK.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.min.js" integrity="sha384-lpyLfhYuitXl2zRZ5Bn2fqnhNAKOAaM/0Kr9laMspuaMiZfGmfwRNFh8HlMy49eQ" crossorigin="anonymous"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="lib/bootstrap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js"></script>
-    <script src="lib/vue-select.js"></script>
+    <script src="https://live.zwidgets.com/js-sdk/1.1/ZohoEmbededAppSDK.min.js"></script>    
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
     <script src="lib/luxon.min.js"></script>
     <script src="lib/vue-datetime.min.js"></script>
     <script src="lib/vue-multiselect.min.js"></script>
